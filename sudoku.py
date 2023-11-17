@@ -1,7 +1,7 @@
 import tkinter as tk
 import pandas as pd
 import tkinter.messagebox
-
+import time
 
 
 
@@ -74,7 +74,19 @@ def check_answers(sudoku_solution):
                     # If the cell is empty or non-integer, do nothing
                     pass
 
+def update_timer(label):
+    """ Update the timer every second """
+    global start_time
+    if start_time:
+        elapsed_time = time.time() - start_time
+        label.config(text=time.strftime('%H:%M:%S', time.gmtime(elapsed_time)))
+        label.after(1000, lambda: update_timer(label))
 
+def start_timer(label):
+    """ Start the timer """
+    global start_time
+    start_time = time.time()
+    update_timer(label)
 
 def new_game():
     """Starts a new Sudoku game."""
@@ -133,12 +145,18 @@ def main():
     """
     Main function to set up the Tkinter window and run the application.
     """
-    global sudoku_solution
+    global sudoku_solution, start_time
+    start_time = None
+
+
+
     app = tk.Tk()
     app.title("Sudoku Game")
     app.geometry('600x700')
     # Set a modern background color
     app.configure(bg='#f0f0f0')  # Light grey background
+
+    
 
     # Create a frame with a slightly different background color for contrast
     frame = tk.Frame(app, bg='#e0e0e0', padx=20, pady=20)  # Slightly darker shade
@@ -190,6 +208,11 @@ def main():
     # btn_check_all = tk.Button(frame, text='Check All', command=lambda: confirm_check_all(sudoku_solution))
     # btn_check_all.grid(row=10, column=6, columnspan=2, sticky="ew")
 
+     # Ask user if they want to start the game
+    start_game = tk.messagebox.askyesno("Start Game", "Do you want to start the Sudoku game?")
+    if not start_game:
+        # User chose 'No', return to the login page or close the application
+        return  # or use sys.exit() if you want to completely close the application
 
 
 
