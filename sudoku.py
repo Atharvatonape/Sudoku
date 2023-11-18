@@ -1,8 +1,8 @@
 import tkinter as tk
 import pandas as pd
-import tkinter.messagebox
+import tkinter.messagebox as mssg
 import time
-
+import login
 
 
 def create_grid(frame, puzzle):
@@ -88,13 +88,27 @@ def start_timer(label):
     start_time = time.time()
     update_timer(label)
 
-def new_game():
+def start_sudoku_game():
+    main()  # Assuming main sets up your game
+    start_timer(timer_label)  # Start the timer
+
+
+def new_game(app):
     """Starts a new Sudoku game."""
     pass  # Logic for starting a new game goes here
+    ans = mssg.askyesno("Do you really want to restart the game")
+    if ans:
+        app.destroy()
+        main()
 
-def reset_game():
+def reset_game(app):
     """Resets the current Sudoku puzzle."""
     pass  # Logic for resetting the game goes here
+    ans = mssg.askyesno("Do you really want to go back to login")
+    if ans:
+        app.destroy()
+        login.login_up()
+        
 
 def quit_game(app):
     """Quits the Sudoku game."""
@@ -142,83 +156,56 @@ def check_all_answers(sudoku_solution):
 sudoku_solution = None 
 
 def main():
-    """
-    Main function to set up the Tkinter window and run the application.
-    """
-    global sudoku_solution, start_time
+    global sudoku_solution, start_time, rounds_played, filled_boxes_count, quit_time
+    # Initialize global variables
+    rounds_played = 0
+    filled_boxes_count = 0
+    quit_time = None
     start_time = None
 
-
-
+    # Initialize the Tkinter window
     app = tk.Tk()
     app.title("Sudoku Game")
     app.geometry('600x700')
-    # Set a modern background color
-    app.configure(bg='#f0f0f0')  # Light grey background
+    app.configure(bg='#f0f0f0')
+    frame = tk.Frame(app, bg='#e0e0e0', padx=20, pady=20)
+    frame.pack(expand=True, padx=20, pady=20)
 
-    
-
-    # Create a frame with a slightly different background color for contrast
-    frame = tk.Frame(app, bg='#e0e0e0', padx=20, pady=20)  # Slightly darker shade
-    frame.pack(expand=True, padx=20, pady=20)  # Consistent padding for neat layout
-
-
-     # Read the Sudoku puzzle from CSV
+    # Read the Sudoku puzzle and create the grid layout
     sudoku_df = pd.read_csv("challenges\sudoku_puzzle.csv", header=None)
     sudoku_puzzle = sudoku_df.values.tolist()
-
-    # Create the Sudoku grid layout inside the frame
     create_grid(frame, sudoku_puzzle)
 
-    # Creating buttons for new game, reset, submit, and quit
-    btn_new = create_button(frame, 'New', new_game, 9, 0, 2)
-    btn_reset = create_button(frame, 'Reset', reset_game, 9, 2, 2)
+    # Timer label
+    timer_label = tk.Label(frame, text="00:00:00", font=('Helvetica', 14))
+    timer_label.grid(row=11, column=0, columnspan=9, sticky="ew")
+
+    # Create buttons and other components
+    btn_new = create_button(frame, 'New', lambda: new_game(app), 9, 0, 2)
+    btn_reset = create_button(frame, 'Reset', lambda: reset_game(app), 9, 2, 2)
     btn_submit = create_button(frame, 'Submit', submit_answers, 9, 4, 2)
-    btn_quit = create_button(frame, 'Quit',lambda: quit_game(app), 9, 6, 2)
-    btn_clear = create_button(frame, 'Clear',lambda: clear_answers, 9, 8, 2)
-    btn_check = create_button(frame, 'Check', lambda:check_answers(sudoku_solution), 10, 2, 2)
-    btn_check_all = create_button(frame, 'Check ALL', lambda:confirm_check_all(sudoku_solution), 10, 4, 3)
-   
+    btn_quit = create_button(frame, 'Quit', lambda: quit_game(app), 9, 6, 2 )
+    btn_clear = create_button(frame, 'Clear', lambda: clear_answers(), 9, 8, 2)
+    btn_check = create_button(frame, 'Check', lambda: check_answers(sudoku_solution), 10, 2, 2)
+    btn_check_all = create_button(frame, 'Check ALL', lambda: confirm_check_all(sudoku_solution), 10, 4, 3)
 
-    # btn_new = tk.Button(frame, text='New', command=new_game)
-    # btn_new.grid(row=9, column=0, columnspan=2, sticky="ew")
-
-    # btn_reset = tk.Button(frame, text='Reset', command=reset_game)
-    # btn_reset.grid(row=9, column=2, columnspan=2, sticky="ew")
-
-    # btn_submit = tk.Button(frame, text='Submit', command=submit_answers)
-    # btn_submit.grid(row=9, column=4, columnspan=2, sticky="ew")
-
-    # btn_quit = tk.Button(frame, text='Quit', command=lambda: quit_game(app))
-    # btn_quit.grid(row=9, column=6, columnspan=3, sticky="ew")
-
-    # # Inside the main function, after creating other buttons
-    # btn_clear = tk.Button(frame, text='Clear', command=clear_answers)
-    # btn_clear.grid(row=9, column=8, columnspan=2, sticky="ew")
-
-    # Inside the main function, after creating other buttons
-    # Inside the main function
+    # Read the Sudoku solution
     sudoku_solution_df = pd.read_csv("challenges\sudoku_solution.csv", header=None)
     sudoku_solution = sudoku_solution_df.values.tolist()
 
-    # btn_check = tk.Button(frame, text='Check', command=lambda: check_answers(sudoku_solution))
-    # btn_check.grid(row=10, column=4, columnspan=2, sticky="ew")
+    # Ask the user to start the game
+    # //Add a new button functionality to it
+    # start_game = tk.messagebox.askyesno("Start Game", "Do you want to start the Sudoku game?")
+    # if start_game:
+    #     # Start the timer and begin the game
+    start_timer(timer_label)
+    
+    #     # Handle the case where the user chooses not to start the game
+    #     # For example, you could display a welcome message or instructions
 
-    # # Inside the main function, after creating other buttons
-    # btn_check_all = tk.Button(frame, text='Check All', command=lambda: confirm_check_all(sudoku_solution))
-    # btn_check_all.grid(row=10, column=6, columnspan=2, sticky="ew")
-
-     # Ask user if they want to start the game
-    start_game = tk.messagebox.askyesno("Start Game", "Do you want to start the Sudoku game?")
-    if not start_game:
-        # User chose 'No', return to the login page or close the application
-        return  # or use sys.exit() if you want to completely close the application
-
-
-
-
-    # Start the Tkinter event loop
+    # # Start the Tkinter main loop
     app.mainloop()
 
 if __name__ == "__main__":
     main()
+

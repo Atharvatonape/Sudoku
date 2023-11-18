@@ -29,9 +29,10 @@ def on_login(username_entry, password_entry):
     password = password_entry.get()
     if verify_login(username, password):
         login_window.destroy()
-        sudoku.main()
+        sudoku.start_sudoku_game()  # New function to start the game
     else:
         messagebox.showinfo("Login Failed", "Incorrect username or password")
+
 
 def on_sign_up(name_entry, username_entry, password_entry, confirm_password_entry, captcha_entry):
     name = name_entry.get()
@@ -82,7 +83,7 @@ def show_signup_window():
     sign_up_button = tk.Button(signup_window, text="Sign Up", command=lambda: on_sign_up(name_entry, username_entry, password_entry, confirm_password_entry, captcha_entry))
     sign_up_button.pack()
 
-def login():
+def login_up():
     global login_window
     login_window = tk.Tk()
     login_window.title("Login")
@@ -105,4 +106,4 @@ def login():
     login_window.mainloop()
 
 if __name__ == "__main__":
-    login()
+    login_up()
